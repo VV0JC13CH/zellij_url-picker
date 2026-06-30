@@ -1,0 +1,35 @@
+// Example zellij keybind for zellij_url-picker.
+//
+// Merge this into your ~/.config/zellij/config.kdl. The binding does two things
+// in order: dump the focused pane's screen to a temp file, then open a floating
+// pane running the picker against that file.
+//
+// IMPORTANT: zellij's `Run` requires an ABSOLUTE path — `~` / `$HOME` are NOT
+// expanded. Edit the path below to wherever you cloned this repo.
+
+keybinds {
+    // `shared_except "locked"` makes Alt+u work from every mode except locked.
+    shared_except "locked" {
+        bind "Alt u" {
+            DumpScreen "/tmp/zellij-urlview.dump";
+            Run "bash" "/home/YOU/.config/zellij/url-picker/url-picker.sh" "/tmp/zellij-urlview.dump" {
+                floating true
+                close_on_exit true
+                name "url-picker"
+            };
+        }
+    }
+
+    // Optional: a mnemonic `u` inside scroll mode, next to EditScrollback.
+    // scroll {
+    //     bind "u" {
+    //         DumpScreen "/tmp/zellij-urlview.dump";
+    //         Run "bash" "/home/YOU/.config/zellij/url-picker/url-picker.sh" "/tmp/zellij-urlview.dump" {
+    //             floating true
+    //             close_on_exit true
+    //             name "url-picker"
+    //         };
+    //         SwitchToMode "normal";
+    //     }
+    // }
+}
