@@ -100,7 +100,7 @@ keybinds {
     shared_except "locked" {
         bind "Alt u" {
             DumpScreen "/tmp/zellij-urlview.dump";
-            Run "bash" "/home/YOU/.config/zellij/url-picker/url-picker.sh" "/tmp/zellij-urlview.dump" {
+            Run "bash" "-c" "exec \"$HOME/.config/zellij/url-picker/url-picker.sh\" /tmp/zellij-urlview.dump" {
                 floating true
                 close_on_exit true
                 name "url-picker"
@@ -110,8 +110,10 @@ keybinds {
 }
 ```
 
-> **Note:** zellij's `Run` needs an **absolute** path — `~` and `$HOME` are not
-> expanded. Edit the path to match where you cloned the repo.
+> **Note:** zellij's `Run` passes its arguments verbatim — no shell — so `~` and
+> `$HOME` are not expanded. Running through `bash -c` lets bash do the expansion,
+> so the binding above works as-is for any user as long as you cloned the repo to
+> `~/.config/zellij/url-picker` (adjust that path inside the string otherwise).
 
 A copy of this snippet lives in [`examples/config.kdl`](examples/config.kdl).
 
