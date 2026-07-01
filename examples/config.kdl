@@ -1,23 +1,23 @@
-// Example zellij keybind for zellij_url-picker.
+// Example zellij keybind for Zellij-urlview.
 //
 // Merge this into your ~/.config/zellij/config.kdl. The binding does two things
 // in order: dump the focused pane's screen to a temp file, then open a floating
-// pane running the picker against that file.
+// pane running urlview against that file.
 //
 // zellij's `Run` passes its arguments verbatim — no shell, so `~` / `$HOME` are
 // NOT expanded. We sidestep that by running through `bash -c`, which lets bash
 // expand `$HOME`. As long as you cloned this repo to
-// ~/.config/zellij/url-picker, the binding below works as-is for any user.
+// ~/.config/zellij/zellij-urlview, the binding below works as-is for any user.
 
 keybinds {
     // `shared_except "locked"` makes Alt+u work from every mode except locked.
     shared_except "locked" {
         bind "Alt u" {
             DumpScreen "/tmp/zellij-urlview.dump";
-            Run "bash" "-c" "exec \"$HOME/.config/zellij/url-picker/url-picker.sh\" /tmp/zellij-urlview.dump" {
+            Run "bash" "-c" "exec \"$HOME/.config/zellij/zellij-urlview/zellij-urlview.sh\" /tmp/zellij-urlview.dump" {
                 floating true
                 close_on_exit true
-                name "url-picker"
+                name "zellij-urlview"
             };
         }
     }
@@ -26,10 +26,10 @@ keybinds {
     // scroll {
     //     bind "u" {
     //         DumpScreen "/tmp/zellij-urlview.dump";
-    //         Run "bash" "-c" "exec \"$HOME/.config/zellij/url-picker/url-picker.sh\" /tmp/zellij-urlview.dump" {
+    //         Run "bash" "-c" "exec \"$HOME/.config/zellij/zellij-urlview/zellij-urlview.sh\" /tmp/zellij-urlview.dump" {
     //             floating true
     //             close_on_exit true
-    //             name "url-picker"
+    //             name "zellij-urlview"
     //         };
     //         SwitchToMode "normal";
     //     }

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# url-picker.sh — a tmux-urlview equivalent for zellij.
+# zellij-urlview.sh — a tmux-urlview equivalent for zellij.
 #
 # Reads a screen dump (produced by zellij's `DumpScreen` keybind action),
 # extracts every URL it can find, lets you pick one (or several) with fzf, and
 # opens the selection in your browser.
 #
-# Usage: url-picker.sh <dump-file>
+# Usage: zellij-urlview.sh <dump-file>
 # Intended to be launched in a floating pane from a zellij keybind. See README.
 #
 # Environment:
-#   URLPICKER_OPENER   command used to open a URL (default: auto-detected —
+#   URLVIEW_OPENER   command used to open a URL (default: auto-detected —
 #                      xdg-open, open, or $BROWSER)
 
 set -u
@@ -29,8 +29,8 @@ pause() {
 
 # Pick the command used to open URLs.
 detect_opener() {
-    if [[ -n "${URLPICKER_OPENER:-}" ]]; then
-        echo "$URLPICKER_OPENER"
+    if [[ -n "${URLVIEW_OPENER:-}" ]]; then
+        echo "$URLVIEW_OPENER"
     elif command -v xdg-open >/dev/null 2>&1; then
         echo "xdg-open"
     elif command -v open >/dev/null 2>&1; then  # macOS
@@ -53,7 +53,7 @@ open_url() {
 }
 
 if [[ -z "$dump" ]]; then
-    echo "url-picker: no dump path given." >&2
+    echo "zellij-urlview: no dump path given." >&2
     pause
     exit 1
 fi
@@ -66,7 +66,7 @@ for _ in $(seq 1 40); do
 done
 
 if [[ ! -f "$dump" ]]; then
-    echo "url-picker: no screen dump found." >&2
+    echo "zellij-urlview: no screen dump found." >&2
     pause
     exit 1
 fi
@@ -75,7 +75,7 @@ fi
 #  - http(s)/ftp/file schemes, plus bare www.* hosts
 #  - strip trailing punctuation that commonly hugs URLs in prose
 #  - dedupe while preserving order, then reverse so the most recently printed
-#    URLs (bottom of the screen) appear first in the picker.
+#    URLs (bottom of the screen) appear first in urlview.
 mapfile -t urls < <(
     grep -aoE '((https?|ftp|file)://|www\.)[A-Za-z0-9._~:/?#@!$&'"'"'()*+,;=%-]+' "$dump" \
         | sed -E 's/[].,;:!?")>'"'"']+$//' \
@@ -84,7 +84,7 @@ mapfile -t urls < <(
 )
 
 if [[ ${#urls[@]} -eq 0 ]]; then
-    echo "url-picker: no URLs on screen." >&2
+    echo "zellij-urlview: no URLs on screen." >&2
     pause
     exit 0
 fi
@@ -99,7 +99,7 @@ elif command -v urlview >/dev/null 2>&1; then
     printf '%s\n' "${urls[@]}" | urlview
     exit 0
 else
-    echo "url-picker: neither fzf nor urlview found." >&2
+    echo "zellij-urlview: neither fzf nor urlview found." >&2
     pause
     exit 1
 fi
@@ -108,7 +108,7 @@ fi
 
 opener="$(detect_opener)"
 if [[ -z "$opener" ]]; then
-    echo "url-picker: no URL opener found (set URLPICKER_OPENER)." >&2
+    echo "zellij-urlview: no URL opener found (set URLVIEW_OPENER)." >&2
     pause
     exit 1
 fi

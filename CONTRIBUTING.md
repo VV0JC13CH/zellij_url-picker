@@ -1,4 +1,4 @@
-# Contributing to zellij_url-picker
+# Contributing to Zellij-urlview
 
 Thanks for taking the time to contribute! This is a small project, so the
 process is light.
@@ -19,8 +19,8 @@ process is light.
 There's no build step — it's a single bash script.
 
 ```sh
-git clone https://github.com/VV0JC13CH/zellij_url-picker.git
-cd zellij_url-picker
+git clone https://github.com/VV0JC13CH/zellij-urlview.git
+cd zellij-urlview
 ```
 
 ### Testing without zellij
@@ -34,7 +34,7 @@ See https://example.com/path?q=1 and (https://github.com/zellij-org/zellij).
 Bare host: www.rust-lang.org   trailing dot: https://news.example.org.
 EOF
 
-./url-picker.sh /tmp/dump
+./zellij-urlview.sh /tmp/dump
 ```
 
 You should get a deduplicated, punctuation-trimmed `fzf` list. Selecting an
@@ -43,7 +43,7 @@ entry opens it with your configured opener.
 To test just the extraction without opening anything, set a no-op opener:
 
 ```sh
-URLPICKER_OPENER=true ./url-picker.sh /tmp/dump
+URLVIEW_OPENER=true ./zellij-urlview.sh /tmp/dump
 ```
 
 ## Coding guidelines
@@ -52,7 +52,7 @@ URLPICKER_OPENER=true ./url-picker.sh /tmp/dump
   POSIX-friendly where it's free to do so, but bash features are fine.
 - **Run [ShellCheck](https://www.shellcheck.net/)** before submitting:
   ```sh
-  shellcheck url-picker.sh
+  shellcheck zellij-urlview.sh
   ```
 - **Style:** 4-space indentation, lowercase variable names, comments that
   explain *why* (the surprising bits — the dump race, the detached opener),

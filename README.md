@@ -1,14 +1,14 @@
-# zellij_url-picker
+# Zellij-urlview
 
 > Press a key, fuzzy-pick any URL on your screen, and open it in your browser — without touching the mouse.
 
-`zellij_url-picker` is a small, dependency-light recreation of the much-loved
+`Zellij-urlview` is a small, dependency-light recreation of the much-loved
 [`tmux-urlview`](https://github.com/tmux-plugins/tmux-urlview) workflow for
 [zellij](https://zellij.dev/). It grabs the text currently on your pane, finds
 every URL in it, drops them into an `fzf` menu, and opens whatever you select.
 
 ```
-┌─ url-picker ──────────────────────────────────────────────┐
+┌─ zellij-urlview ───────────────────────────────────────────┐
 │ open url> rust                                             │
 │ Enter: open · Tab: multi-select · Esc: cancel              │
 │ > https://www.rust-lang.org                                │
@@ -37,7 +37,7 @@ Its workflow is exactly the one this project recreates for zellij:
 
 That tiny "capture → extract → pick → open" pipeline became muscle memory for a
 lot of terminal users. zellij plugins can't read another pane's scrollback, so
-`zellij_url-picker` rebuilds the same idea using zellij's native `DumpScreen`
+`Zellij-urlview` rebuilds the same idea using zellij's native `DumpScreen`
 and `Run` actions (see [How it works](#how-it-works)).
 
 ### References & see also
@@ -54,16 +54,16 @@ and `Run` actions (see [How it works](#how-it-works)).
 
 zellij plugins are sandboxed WebAssembly modules, and the plugin API
 deliberately **cannot read another pane's scrollback**. So instead of fighting
-that, `zellij_url-picker` uses the same idea `tmux-urlview` always did —
+that, `Zellij-urlview` uses the same idea `tmux-urlview` always did —
 capture, then pipe — wired through two native zellij primitives:
 
 1. A keybind runs **`DumpScreen`** while your pane is still focused, writing its
    contents to a temp file.
 2. The same keybind then **`Run`s a floating pane** that executes
-   `url-picker.sh`, which extracts the URLs, shows them in `fzf`, and opens your
+   `zellij-urlview.sh`, which extracts the URLs, shows them in `fzf`, and opens your
    pick.
 
-Capturing *before* the floating pane opens is the trick that avoids the picker
+Capturing *before* the floating pane opens is the trick that avoids urlview
 dumping itself instead of your work.
 
 ---
@@ -74,8 +74,8 @@ dumping itself instead of your work.
 | ----------- | -------------------------------------------- | ------------------ |
 | `zellij`    | ≥ 0.40 (uses `DumpScreen` + `Run` keybinds)  | yes                |
 | `bash`      | the script is bash (`mapfile`, arrays)       | yes                |
-| `fzf`       | the picker UI                                | yes (or `urlview`) |
-| `urlview`   | fallback picker if `fzf` is missing          | optional           |
+| `fzf`       | the interactive UI                           | yes (or `urlview`) |
+| `urlview`   | fallback if `fzf` is missing                 | optional           |
 | `xdg-open`  | opens the chosen URL (Linux)                 | one opener needed  |
 | `open`      | opens the chosen URL (macOS)                 | one opener needed  |
 | `setsid`    | detaches the browser cleanly (util-linux)    | optional           |
@@ -88,22 +88,22 @@ you usually only need to install `fzf`.
 ## Installation
 
 ```sh
-git clone https://github.com/VV0JC13CH/zellij_url-picker.git ~/.config/zellij/url-picker
-chmod +x ~/.config/zellij/url-picker/url-picker.sh
+git clone https://github.com/VV0JC13CH/zellij-urlview.git ~/.config/zellij/zellij-urlview
+chmod +x ~/.config/zellij/zellij-urlview/zellij-urlview.sh
 ```
 
 Then add a keybind to your `~/.config/zellij/config.kdl`. The binding has two
-parts — dump the screen, then open the picker in a floating pane:
+parts — dump the screen, then open urlview in a floating pane:
 
 ```kdl
 keybinds {
     shared_except "locked" {
         bind "Alt u" {
             DumpScreen "/tmp/zellij-urlview.dump";
-            Run "bash" "-c" "exec \"$HOME/.config/zellij/url-picker/url-picker.sh\" /tmp/zellij-urlview.dump" {
+            Run "bash" "-c" "exec \"$HOME/.config/zellij/zellij-urlview/zellij-urlview.sh\" /tmp/zellij-urlview.dump" {
                 floating true
                 close_on_exit true
-                name "url-picker"
+                name "zellij-urlview"
             };
         }
     }
@@ -113,7 +113,7 @@ keybinds {
 > **Note:** zellij's `Run` passes its arguments verbatim — no shell — so `~` and
 > `$HOME` are not expanded. Running through `bash -c` lets bash do the expansion,
 > so the binding above works as-is for any user as long as you cloned the repo to
-> `~/.config/zellij/url-picker` (adjust that path inside the string otherwise).
+> `~/.config/zellij/zellij-urlview` (adjust that path inside the string otherwise).
 
 A copy of this snippet lives in [`examples/config.kdl`](examples/config.kdl).
 
@@ -124,7 +124,7 @@ press your keybind. A floating menu of every URL on screen appears.
 
 ## Usage
 
-- **`Alt u`** (or whatever you bound) — open the picker.
+- **`Alt u`** (or whatever you bound) — open urlview.
 - **Type** to fuzzy-filter.
 - **Enter** — open the highlighted URL.
 - **Tab** — multi-select; Enter then opens all selected URLs.
@@ -135,11 +135,11 @@ first), since the link you just saw is usually the one you want.
 
 ### Configuration
 
-Set `URLPICKER_OPENER` if you want a specific opener instead of the
+Set `URLVIEW_OPENER` if you want a specific opener instead of the
 auto-detected one (`xdg-open` → `open` → `$BROWSER`):
 
 ```sh
-URLPICKER_OPENER=firefox
+URLVIEW_OPENER=firefox
 ```
 
 ---
@@ -147,7 +147,7 @@ URLPICKER_OPENER=firefox
 ## Limitations
 
 - `DumpScreen` captures the **visible viewport**, not the full scrollback —
-  same as a default `tmux capture-pane`. Scroll up before opening the picker to
+  same as a default `tmux capture-pane`. Scroll up before opening urlview to
   reach older links.
 - URL detection is regex-based and pragmatic; it favours the common cases
   (http/https/ftp/file and `www.` hosts) over RFC-perfect completeness.
