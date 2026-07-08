@@ -77,7 +77,13 @@ fi
 #  - dedupe while preserving order, then reverse so the most recently printed
 #    URLs (bottom of the screen) appear first in urlview.
 mapfile -t urls < <(
-    grep -aoE '((https?|ftp|file)://|www\.)[A-Za-z0-9._~:/?#@!$&'"'"'()*+,;=%-]+' "$dump" \
+    # Determine terminal width as the longest line in the dump.  Lines that
+    # fill this width were wrapped by the terminal and must be joined with the
+    # next line so a URL that crosses a wrap boundary is reconstructed whole.
+    # Shorter lines ended naturally and keep their newline as a separator.
+    width=$(awk '{ gsub(/\r/,""); if (length > max) max = length } END { print max+0 }' "$dump")
+    awk -v w="$width" '{ gsub(/\r/,""); printf "%s%s", $0, (length($0)==w && w>0 ? "" : "\n") }' "$dump" \
+        | grep -aoE '((https?|ftp|file)://|www\.)[A-Za-z0-9._~:/?#@!$&'"'"'()*+,;=%-]+' \
         | sed -E 's/[].,;:!?")>'"'"']+$//' \
         | awk '!seen[$0]++' \
         | tac
